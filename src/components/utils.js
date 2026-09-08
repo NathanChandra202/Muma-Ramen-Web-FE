@@ -2,24 +2,30 @@
 export function showToast(message, type = 'info', duration = 3000) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
+  toast.className = `fixed top-5 right-5 z-[10000] flex items-center gap-3 px-5 py-3 rounded-lg text-sm font-medium shadow-2xl transition-all duration-300 transform translate-x-0 opacity-100 ${
+    type === 'success' ? 'bg-emerald-500 text-white' : 
+    type === 'error' ? 'bg-red-500 text-white' : 
+    type === 'warning' ? 'bg-amber-500 text-white' : 
+    'bg-blue-500 text-white'
+  }`;
 
   const icons = {
-    success: 'fa-circle-check',
-    error: 'fa-circle-xmark',
-    warning: 'fa-triangle-exclamation',
-    info: 'fa-circle-info',
+    success: '✓',
+    error: '✗',
+    warning: '⚠',
+    info: 'i',
   };
 
   toast.innerHTML = `
-    <i class="fa-solid ${icons[type] || icons.info}"></i>
+    <span class="font-bold text-lg">${icons[type] || icons.info}</span>
     <span>${message}</span>
   `;
 
   container.appendChild(toast);
 
   setTimeout(() => {
-    toast.classList.add('toast-exit');
+    toast.classList.replace('translate-x-0', 'translate-x-full');
+    toast.classList.replace('opacity-100', 'opacity-0');
     setTimeout(() => toast.remove(), 300);
   }, duration);
 }
@@ -29,17 +35,17 @@ export function showModal({ title, content, footer, onClose, wide = false }) {
   const container = document.getElementById('modal-container');
 
   const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay';
+  overlay.className = 'fixed inset-0 bg-background/80 backdrop-blur-sm z-[9000] flex items-center justify-center p-6 animate-in fade-in duration-200';
   overlay.innerHTML = `
-    <div class="modal-content" style="${wide ? 'max-width:680px;' : ''}">
-      <div class="modal-header">
-        <h2 class="modal-title">${title}</h2>
-        <button class="modal-close" id="modal-close-btn">
-          <i class="fa-solid fa-xmark"></i>
+    <div class="bg-surface border border-border rounded-2xl p-8 w-full ${wide ? 'max-w-2xl' : 'max-w-md'} shadow-2xl animate-in zoom-in-95 duration-300">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-text">${title}</h2>
+        <button class="w-8 h-8 rounded-full flex items-center justify-center text-text-muted hover:bg-surface-hover hover:text-primary transition" id="modal-close-btn">
+          ✕
         </button>
       </div>
-      <div class="modal-body">${content}</div>
-      ${footer ? `<div class="modal-footer">${footer}</div>` : ''}
+      <div class="text-text-muted">${content}</div>
+      ${footer ? `<div class="flex justify-end gap-3 mt-8 pt-6 border-t border-border">${footer}</div>` : ''}
     </div>
   `;
 
@@ -63,10 +69,10 @@ export function confirm(message, title = 'Konfirmasi') {
   return new Promise((resolve) => {
     const { close, overlay } = showModal({
       title,
-      content: `<p style="color:var(--body-grey);line-height:1.6;">${message}</p>`,
+      content: `<p class="text-text-muted">${message}</p>`,
       footer: `
-        <button class="btn btn-ghost" id="confirm-cancel">Batal</button>
-        <button class="btn btn-primary" id="confirm-ok">Ya, Lanjutkan</button>
+        <button class="px-4 py-2 rounded-lg text-sm font-medium border border-border hover:bg-surface-hover transition" id="confirm-cancel">Batal</button>
+        <button class="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-orange-600 transition" id="confirm-ok">Ya, Lanjutkan</button>
       `,
     });
 
@@ -133,4 +139,25 @@ export function getMenuImage(imageUrl, name) {
   const color = colors[hash % colors.length];
   const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&background=${color}&color=fff&size=300&font-size=0.4&bold=true`;
+}
+
+// Generate array of image URLs from item.images
+export function getMenuImages(item) {
+  let urls = [];
+  if (item.images) {
+    try {
+      urls = JSON.parse(item.images);
+    } catch (e) {
+      console.error("Failed to parse images json", e);
+    }
+  }
+  
+  if (urls.length === 0) {
+    if (item.image_url) {
+      return [getMenuImage(item.image_url, item.name)];
+    }
+    return [getMenuImage(null, item.name)];
+  }
+
+  return urls.map(url => getMenuImage(url, item.name));
 }

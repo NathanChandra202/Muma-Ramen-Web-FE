@@ -60,8 +60,8 @@ export const menu = {
   create: (data) => request('/menu', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/menu/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/menu/${id}`, { method: 'DELETE' }),
-  updateStock: (id, stock) => request(`/menu/${id}/stock`, { method: 'PATCH', body: JSON.stringify({ stock }) }),
-  toggleAvailability: (id, isAvailable) => request(`/menu/${id}/availability`, { method: 'PATCH', body: JSON.stringify({ is_available: isAvailable }) }),
+  updateStock: (id, stock) => request(`/menu/${id}/stock`, { method: 'PUT', body: JSON.stringify({ stock }) }),
+  toggleAvailability: (id, isAvailable) => request(`/menu/${id}/availability`, { method: 'PUT', body: JSON.stringify({ is_available: isAvailable }) }),
 };
 
 // Categories
@@ -80,7 +80,7 @@ export const orders = {
     return request(`/orders${query ? '?' + query : ''}`);
   },
   get: (id) => request(`/orders/${id}`),
-  updateStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  updateStatus: (id, status) => request(`/orders/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
   cancel: (id) => request(`/orders/${id}`, { method: 'DELETE' }),
 };
 
