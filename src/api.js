@@ -1,5 +1,5 @@
 // API Client for Muma Ramen Backend
-const API_BASE = 'http://localhost:8081/api';
+const API_BASE = 'http://localhost:9003/api';
 
 function getToken() {
   return localStorage.getItem('muma_token');

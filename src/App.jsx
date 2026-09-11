@@ -48,27 +48,11 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LandingPage />} />
 
-        {/* Order Pages */}
-        <Route path="/order/menu" element={
-          <ProtectedRoute allowedRoles={['pembeli', 'kasir', 'admin']}>
-            <MenuPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/order/cart" element={
-          <ProtectedRoute allowedRoles={['pembeli', 'kasir', 'admin']}>
-            <CartPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/order/tracking/:id" element={
-          <ProtectedRoute allowedRoles={['pembeli', 'kasir', 'admin']}>
-            <TrackingPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/order/history" element={
-          <ProtectedRoute allowedRoles={['pembeli', 'kasir', 'admin']}>
-            <HistoryPage />
-          </ProtectedRoute>
-        } />
+        {/* Order Pages - Publik, tidak perlu login */}
+        <Route path="/order/menu" element={<MenuPage />} />
+        <Route path="/order/cart" element={<CartPage />} />
+        <Route path="/order/tracking/:id" element={<TrackingPage />} />
+        <Route path="/order/history" element={<HistoryPage />} />
 
         {/* POS Pages */}
         <Route path="/pos/dashboard" element={
