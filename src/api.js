@@ -1,5 +1,5 @@
 // API Client for Muma Ramen Backend
-const API_BASE = 'http://localhost:9003/api';
+const API_BASE = 'http://localhost:8081/api';
 
 function getToken() {
   return localStorage.getItem('muma_token');
@@ -37,15 +37,22 @@ async function request(endpoint, options = {}) {
   }
 }
 
+export const api = {
+  get: (endpoint) => request(endpoint),
+  post: (endpoint, body) => request(endpoint, { method: 'POST', body: JSON.stringify(body) }),
+  put: (endpoint, body) => request(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+  delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
+};
+
 // Auth
 export const auth = {
   login: (email, password) => request('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   }),
-  register: (name, email, password) => request('/auth/register', {
+  register: (name, email, phone, password) => request('/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ name, email, password }),
+    body: JSON.stringify({ name, email, phone, password }),
   }),
   me: () => request('/auth/me'),
 };

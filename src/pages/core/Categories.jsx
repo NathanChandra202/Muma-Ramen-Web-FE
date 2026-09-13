@@ -10,7 +10,7 @@ export default function Categories() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCat, setEditingCat] = useState(null);
-  const [formData, setFormData] = useState({ name: '', description: '', sort_order: 0 });
+  const [formData, setFormData] = useState({ name: '', description: '', sort_order: 0, imageFile: null });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => { fetchCategories(); }, []);
@@ -24,7 +24,7 @@ export default function Categories() {
 
   const openCreateForm = () => {
     setEditingCat(null);
-    setFormData({ name: '', description: '', sort_order: 0 });
+    setFormData({ name: '', description: '', sort_order: 0, imageFile: null });
     setShowForm(true);
   };
 
@@ -34,6 +34,7 @@ export default function Categories() {
       name: cat.name || '',
       description: cat.description || '',
       sort_order: cat.sort_order || 0,
+      imageFile: null
     });
     setShowForm(true);
   };
@@ -58,12 +59,26 @@ export default function Categories() {
         sort_order: parseInt(formData.sort_order) || 0,
       };
 
+      let catId = editingCat ? editingCat.id : null;
       if (editingCat) {
         await catApi.update(editingCat.id, payload);
         showToast('Kategori berhasil diupdate', 'success');
       } else {
-        await catApi.create(payload);
+        const res = await catApi.create(payload);
+        catId = res.category.id;
         showToast('Kategori baru berhasil ditambahkan', 'success');
+      }
+      
+      // Upload image if provided
+      if (formData.imageFile && catId) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('image', formData.imageFile);
+        const token = localStorage.getItem('muma_token');
+        await fetch(`http://localhost:8081/api/categories/${catId}/image`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formDataUpload
+        });
       }
 
       closeForm();
@@ -124,9 +139,13 @@ export default function Categories() {
               <div key={cat.id} className="glass rounded-2xl p-6 border border-border hover:border-primary/30 transition-all group">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl border border-primary/20">
-                      {cat.name?.[0]?.toUpperCase() || '?'}
-                    </div>
+                    {cat.image_url ? (
+                      <div className="w-12 h-12 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url('http://localhost:8081${cat.image_url}')` }} />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl border border-primary/20">
+                        {cat.name?.[0]?.toUpperCase() || '?'}
+                      </div>
+                    )}
                     <div>
                       <h3 className="font-bold text-lg">{cat.name}</h3>
                       {cat.description && <p className="text-xs text-text-muted line-clamp-1">{cat.description}</p>}
@@ -205,6 +224,16 @@ export default function Categories() {
                   placeholder="0"
                 />
                 <p className="text-xs text-text-muted mt-1">Semakin kecil angka, semakin di atas posisinya.</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Gambar Kategori</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => setFormData({ ...formData, imageFile: e.target.files[0] })}
+                  className="w-full bg-background border border-border rounded-lg px-4 py-3 text-text focus:outline-none focus:border-primary transition"
+                />
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">

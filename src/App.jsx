@@ -7,6 +7,7 @@ import MenuPage from './pages/order/Menu';
 import CartPage from './pages/order/Cart';
 import TrackingPage from './pages/order/Tracking';
 import HistoryPage from './pages/order/History';
+import ProfilePage from './pages/order/Profile';
 import POSDashboard from './pages/pos/Dashboard';
 import POSOrders from './pages/pos/Orders';
 import POSStock from './pages/pos/Stock';
@@ -45,7 +46,7 @@ function App() {
     <HashRouter>
       <Routes>
         {/* Auth */}
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<Navigate to="/order/menu" replace />} />
         <Route path="/login" element={<LandingPage />} />
 
         {/* Order Pages - Publik, tidak perlu login */}
@@ -53,6 +54,11 @@ function App() {
         <Route path="/order/cart" element={<CartPage />} />
         <Route path="/order/tracking/:id" element={<TrackingPage />} />
         <Route path="/order/history" element={<HistoryPage />} />
+        <Route path="/profile" element={
+          <ProtectedRoute allowedRoles={['pembeli', 'kasir', 'admin', 'superadmin']}>
+            <ProfilePage />
+          </ProtectedRoute>
+        } />
 
         {/* POS Pages */}
         <Route path="/pos/dashboard" element={

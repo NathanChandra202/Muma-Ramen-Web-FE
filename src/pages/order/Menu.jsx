@@ -4,8 +4,8 @@ import { menu as menuApi, categories as catApi } from '../../api';
 import { addToCart, getCartCount, onCartChange } from '../../cart';
 import { getUser, isLoggedIn } from '../../auth';
 import { showToast, formatPrice, getMenuImage, getMenuImages } from '../../components/utils';
-import { motion } from 'framer-motion';
-import { Search, ShoppingCart, Clock, LayoutGrid, Coffee, MapPin } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, ShoppingCart, Clock, LayoutGrid, Coffee, MapPin, X } from 'lucide-react';
 
 const SpotlightCard = ({ children, className = '' }) => {
   const divRef = useRef(null);
@@ -103,6 +103,7 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(0);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const user = getUser();
 
@@ -141,6 +142,60 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-background text-white selection:bg-primary/30">
+      
+      {/* Modal Details */}
+      <AnimatePresence>
+        {selectedItem && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedItem(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+            >
+              <button 
+                onClick={() => setSelectedItem(null)}
+                className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur transition"
+              >
+                <X size={18} />
+              </button>
+              
+              <div className="h-64 sm:h-80 w-full shrink-0">
+                <MenuImageCarousel item={selectedItem} />
+              </div>
+              
+              <div className="p-6 overflow-y-auto">
+                <span className="text-xs text-primary font-bold uppercase tracking-wider mb-2 block">{selectedItem.category?.name}</span>
+                <h2 className="text-2xl font-bold mb-2">{selectedItem.name}</h2>
+                <p className="text-xl font-bold text-white mb-6">{formatPrice(selectedItem.price)}</p>
+                
+                <h3 className="font-semibold text-text-muted mb-2">Deskripsi</h3>
+                <p className="text-text/80 mb-8 whitespace-pre-wrap leading-relaxed">{selectedItem.description}</p>
+                
+                <button
+                  disabled={selectedItem.stock === 0}
+                  onClick={(e) => {
+                    handleAddToCart(e, selectedItem);
+                    setSelectedItem(null);
+                  }}
+                  className="w-full py-3 rounded-xl bg-primary hover:bg-orange-600 text-white font-bold transition-all shadow-[0_0_20px_rgba(249,115,22,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart size={18} />
+                  {selectedItem.stock === 0 ? 'Habis' : 'Tambah ke Keranjang'}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -237,7 +292,7 @@ export default function MenuPage() {
               transition={{ delay: i * 0.05 }}
               className="h-full"
             >
-              <SpotlightCard className="h-full flex flex-col">
+              <SpotlightCard className="h-full flex flex-col cursor-pointer" onClick={() => setSelectedItem(item)}>
                 <MenuImageCarousel item={item} />
                 <div className="p-5 flex-1 flex flex-col">
                   <span className="text-[10px] text-primary font-bold uppercase tracking-wider mb-1">{item.category?.name}</span>

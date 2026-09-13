@@ -21,7 +21,7 @@ export default function POSStock() {
 
   const fetchItems = () => {
     menuApi.list(false)
-      .then(res => setItems(res.items || []))
+      .then(res => setItems(res.menu || []))
       .catch(err => showToast(err.message, 'error'))
       .finally(() => setLoading(false));
   };

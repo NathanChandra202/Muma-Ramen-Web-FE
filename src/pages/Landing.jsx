@@ -9,7 +9,7 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState('login');
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '' });
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -34,7 +34,7 @@ export default function LandingPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const data = await authApi.register(formData.name, formData.email, formData.password);
+      const data = await authApi.register(formData.name, formData.email, formData.phone, formData.password);
       login(data.token, data.user);
       showToast('Registration successful! 🍜', 'success');
       navigate('/order/menu');
@@ -99,20 +99,33 @@ export default function LandingPage() {
         {/* Forms */}
         <form onSubmit={tab === 'login' ? handleLogin : handleRegister} className="space-y-5">
           {tab === 'register' && (
-            <div>
-              <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Nama Lengkap</label>
-              <input 
-                type="text" required 
-                className="w-full bg-surface-hover border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                placeholder="Nama kamu"
-                value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
-              />
-            </div>
+            <>
+              <div>
+                <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Nama Lengkap</label>
+                <input 
+                  type="text" required 
+                  className="w-full bg-surface-hover border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  placeholder="Nama kamu"
+                  value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Nomor Telepon</label>
+                <input 
+                  type="tel" required 
+                  className="w-full bg-surface-hover border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  placeholder="08123456789"
+                  value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
+                />
+              </div>
+            </>
           )}
           <div>
-            <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Email</label>
+            <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">
+              {tab === 'login' ? 'Email / Nomor Telepon' : 'Email'}
+            </label>
             <input 
-              type="email" required 
+              type={tab === 'login' ? 'text' : 'email'} required 
               className="w-full bg-surface-hover border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
               placeholder="email@contoh.com"
               value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})}

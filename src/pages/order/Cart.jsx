@@ -20,6 +20,14 @@ export default function CartPage() {
   useEffect(() => {
     setCartItems(getCart());
     const unsub = onCartChange((newCart) => setCartItems([...newCart]));
+    
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.phone) setCustomerPhone(user.phone);
+      if (user.name) setCustomerName(user.name);
+    }
+    
     return () => unsub();
   }, []);
 
