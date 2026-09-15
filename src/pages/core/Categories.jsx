@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Pencil, Trash2, X, FolderOpen } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { categories as catApi } from '../../api';
-import { showToast } from '../../components/utils';
+import { showToast, getImageUrl } from '../../components/utils';
 import { coreLinks } from './Dashboard';
 
 export default function Categories() {
@@ -135,7 +135,7 @@ export default function Categories() {
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     {cat.image_url ? (
-                      <div className="w-12 h-12 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url('http://localhost:8081${cat.image_url}')` }} />
+                      <div className="w-12 h-12 rounded-xl bg-cover bg-center border border-border" style={{ backgroundImage: `url('${getImageUrl(cat.image_url)}')` }} />
                     ) : (
                       <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-xl border border-primary/20">
                         {cat.name?.[0]?.toUpperCase() || '?'}

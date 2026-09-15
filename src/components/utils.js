@@ -1,3 +1,7 @@
+import { API_BASE } from '../api';
+
+export const API_HOST = API_BASE.replace('/api', '');
+
 // Toast notification system
 export function showToast(message, type = 'info', duration = 3000) {
   const container = document.getElementById('toast-container');
@@ -129,10 +133,17 @@ export function getOrderTypeLabel(type) {
   return labels[type] || type;
 }
 
+// Get full image URL
+export function getImageUrl(path) {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  return `${API_HOST}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
 // Generate placeholder image URL based on item name
 export function getMenuImage(imageUrl, name) {
-  if (imageUrl && !imageUrl.startsWith('/images/')) {
-    return `http://localhost:8081${imageUrl}`;
+  if (imageUrl) {
+    return getImageUrl(imageUrl);
   }
   // Generate a colored placeholder with initials
   const colors = ['DE5737', 'E57924', '2D8A4E', '2D6E8A', '856404', '7B1FA2'];
