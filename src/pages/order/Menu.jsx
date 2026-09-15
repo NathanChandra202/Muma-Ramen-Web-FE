@@ -179,7 +179,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-white selection:bg-primary/30">
+    <div className="min-h-screen bg-background text-text selection:bg-primary/30">
 
       {/* Modal Details */}
       <AnimatePresence>

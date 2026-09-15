@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Search, Pencil, Trash2, X, Upload } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { menu as menuApi, categories as catApi } from '../../api';
-import { showToast, formatPrice, getMenuImage } from '../../components/utils';
+import { showToast, formatPrice, getMenuImage, getImageUrl } from '../../components/utils';
 import { coreLinks } from './Dashboard';
 
 const emptyForm = { name: '', description: '', price: '', category_id: '', stock: '', is_available: true, imageFiles: null };
@@ -17,6 +17,8 @@ export default function MenuMgmt() {
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({ ...emptyForm });
   const [saving, setSaving] = useState(false);
+  const [existingImages, setExistingImages] = useState([]);
+  const [previewImages, setPreviewImages] = useState([]);
 
   useEffect(() => { fetchData(); }, []);
 
@@ -47,6 +49,17 @@ export default function MenuMgmt() {
       is_available: item.is_available,
       imageFiles: null,
     });
+    
+    // Parse existing images
+    let parsedImages = [];
+    if (item.images && item.images !== 'null' && item.images !== '[]') {
+      try { parsedImages = JSON.parse(item.images); } catch (e) {}
+    } else if (item.image_url) {
+      parsedImages = [item.image_url];
+    }
+    setExistingImages(parsedImages);
+    setPreviewImages([]);
+    
     setShowForm(true);
   };
 
@@ -54,6 +67,26 @@ export default function MenuMgmt() {
     setShowForm(false);
     setEditingItem(null);
     setFormData({ ...emptyForm });
+    previewImages.forEach(url => URL.revokeObjectURL(url));
+    setPreviewImages([]);
+    setExistingImages([]);
+  };
+
+  const handleDeleteExistingImage = async (pathToRemove) => {
+    if (!window.confirm('Yakin ingin menghapus foto ini?')) return;
+    
+    const newImages = existingImages.filter(p => p !== pathToRemove);
+    const newImageUrl = newImages.length > 0 ? newImages[0] : "";
+    
+    try {
+      await menuApi.update(editingItem.id, { image_url: newImageUrl, images: JSON.stringify(newImages) });
+      setExistingImages(newImages);
+      setEditingItem({ ...editingItem, image_url: newImageUrl, images: JSON.stringify(newImages) });
+      setItems(items.map(item => item.id === editingItem.id ? { ...item, image_url: newImageUrl, images: JSON.stringify(newImages) } : item));
+      showToast('Foto berhasil dihapus', 'success');
+    } catch (err) {
+      showToast('Gagal menghapus foto', 'error');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -343,25 +376,49 @@ export default function MenuMgmt() {
                     type="file"
                     accept="image/*"
                     multiple
-                    onChange={e => setFormData({ ...formData, imageFiles: e.target.files })}
+                    onChange={e => {
+                      const files = e.target.files;
+                      setFormData({ ...formData, imageFiles: files });
+                      
+                      // Create previews for new files
+                      previewImages.forEach(url => URL.revokeObjectURL(url)); // Clean up old
+                      if (files && files.length > 0) {
+                        const newPreviews = Array.from(files).map(f => URL.createObjectURL(f));
+                        setPreviewImages(newPreviews);
+                      } else {
+                        setPreviewImages([]);
+                      }
+                    }}
                     className="w-full text-sm text-text-muted file:mr-4 file:py-3 file:px-4 file:rounded-l-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
                   />
                 </div>
-                {editingItem && editingItem.image_url && (
-                  <button 
-                    type="button" 
-                    onClick={async () => {
-                      if (window.confirm('Yakin ingin menghapus semua foto menu ini?')) {
-                        await menuApi.update(editingItem.id, { image_url: '', images: '[]' });
-                        showToast('Foto berhasil dihapus', 'success');
-                        fetchData();
-                        closeForm();
-                      }
-                    }}
-                    className="mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition"
-                  >
-                    Hapus Semua Foto Lama
-                  </button>
+                
+                {/* Image Previews */}
+                {(existingImages.length > 0 || previewImages.length > 0) && (
+                  <div className="mt-4 grid grid-cols-4 sm:grid-cols-5 gap-3">
+                    {/* Existing Images */}
+                    {existingImages.map((path, i) => (
+                      <div key={`existing-${i}`} className="relative aspect-square rounded-lg overflow-hidden border border-border/50 group/img">
+                        <img src={getImageUrl(path)} alt="Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteExistingImage(path)}
+                          className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover/img:opacity-100 hover:bg-red-500 transition-all scale-75 group-hover/img:scale-100 shadow-sm"
+                          title="Hapus foto ini"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    {/* New Preview Images */}
+                    {previewImages.map((url, i) => (
+                      <div key={`new-${i}`} className="relative aspect-square rounded-lg overflow-hidden border-2 border-primary/50 group/img">
+                        <img src={url} alt="New Preview" className="w-full h-full object-cover opacity-80" />
+                        <span className="absolute bottom-1 right-1 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">Baru</span>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
 
