@@ -118,12 +118,7 @@ export default function MenuMgmt() {
       formPayload.append('images', files[i]);
     }
     try {
-      const res = await fetch(`http://localhost:8081/api/menu/${itemId}/image`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('muma_token')}` },
-        body: formPayload,
-      });
-      if (!res.ok) throw new Error('Upload gagal');
+      await menuApi.uploadImage(itemId, formPayload);
       showToast('Gambar berhasil diupload', 'success');
       fetchData();
     } catch (err) {

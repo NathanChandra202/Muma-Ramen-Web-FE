@@ -73,12 +73,7 @@ export default function Categories() {
       if (formData.imageFile && catId) {
         const formDataUpload = new FormData();
         formDataUpload.append('image', formData.imageFile);
-        const token = localStorage.getItem('muma_token');
-        await fetch(`http://localhost:8081/api/categories/${catId}/image`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: formDataUpload
-        });
+        await catApi.uploadImage(catId, formDataUpload);
       }
 
       closeForm();

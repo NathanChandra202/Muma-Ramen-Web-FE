@@ -1,5 +1,5 @@
 // API Client for Muma Ramen Backend
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081/api';
+export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081/api';
 
 function getToken() {
   return localStorage.getItem('muma_token');
@@ -8,9 +8,14 @@ function getToken() {
 async function request(endpoint, options = {}) {
   const token = getToken();
   const headers = {
-    'Content-Type': 'application/json',
     ...options.headers,
   };
+
+  if (options.body && !(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  } else if (!options.body) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -39,8 +44,8 @@ async function request(endpoint, options = {}) {
 
 export const api = {
   get: (endpoint) => request(endpoint),
-  post: (endpoint, body) => request(endpoint, { method: 'POST', body: JSON.stringify(body) }),
-  put: (endpoint, body) => request(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+  post: (endpoint, body) => request(endpoint, { method: 'POST', body: body instanceof FormData ? body : JSON.stringify(body) }),
+  put: (endpoint, body) => request(endpoint, { method: 'PUT', body: body instanceof FormData ? body : JSON.stringify(body) }),
   delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
 };
 
@@ -69,6 +74,7 @@ export const menu = {
   delete: (id) => request(`/menu/${id}`, { method: 'DELETE' }),
   updateStock: (id, stock) => request(`/menu/${id}/stock`, { method: 'PUT', body: JSON.stringify({ stock }) }),
   toggleAvailability: (id, isAvailable) => request(`/menu/${id}/availability`, { method: 'PUT', body: JSON.stringify({ is_available: isAvailable }) }),
+  uploadImage: (id, formData) => request(`/menu/${id}/image`, { method: 'POST', body: formData }),
 };
 
 // Categories
@@ -77,6 +83,7 @@ export const categories = {
   create: (data) => request('/categories', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/categories/${id}`, { method: 'DELETE' }),
+  uploadImage: (id, formData) => request(`/categories/${id}/image`, { method: 'POST', body: formData }),
 };
 
 // Orders
