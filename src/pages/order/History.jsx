@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { orders as ordersApi } from '../../api';
 import { showToast, formatPrice, formatDate, getStatusLabel, getOrderTypeLabel } from '../../components/utils';
+import AvatarMenu from '../../components/AvatarMenu';
 import { motion } from 'framer-motion';
 import { ArrowLeft, History as HistoryIcon, Search, ChevronRight } from 'lucide-react';
 
@@ -29,14 +30,17 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-background text-text">
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-        <div className="max-w-4xl mx-auto px-6 h-20 flex items-center gap-4">
-          <button onClick={() => navigate('/order/menu')} className="p-2 text-text-muted hover:text-primary transition">
-            <ArrowLeft size={24} />
-          </button>
-          <div className="flex items-center gap-3">
-            <HistoryIcon className="text-primary" size={24} />
-            <h1 className="text-xl font-bold">Riwayat Pesanan</h1>
+        <div className="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <button onClick={() => navigate('/order/menu')} className="p-2 text-text-muted hover:text-primary transition">
+              <ArrowLeft size={24} />
+            </button>
+            <div className="flex items-center gap-3">
+              <HistoryIcon className="text-primary" size={24} />
+              <h1 className="text-xl font-bold">Riwayat Pesanan</h1>
+            </div>
           </div>
+          <AvatarMenu />
         </div>
       </header>
 

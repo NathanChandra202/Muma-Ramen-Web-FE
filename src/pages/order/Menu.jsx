@@ -4,6 +4,7 @@ import { menu as menuApi, categories as catApi } from '../../api';
 import { addToCart, getCartCount, onCartChange } from '../../cart';
 import { getUser, isLoggedIn } from '../../auth';
 import { showToast, formatPrice, getMenuImage, getMenuImages } from '../../components/utils';
+import AvatarMenu from '../../components/AvatarMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, Clock, LayoutGrid, Coffee, MapPin, X } from 'lucide-react';
 
@@ -220,6 +221,7 @@ export default function MenuPage() {
                 </span>
               )}
             </button>
+            <AvatarMenu />
           </div>
         </div>
       </header>

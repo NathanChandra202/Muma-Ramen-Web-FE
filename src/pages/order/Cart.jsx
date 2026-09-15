@@ -4,6 +4,7 @@ import { getCart, getCartTotal, updateQuantity, updateItemNotes, removeFromCart,
 import { orders as ordersApi } from '../../api';
 import { isLoggedIn } from '../../auth';
 import { showToast, formatPrice, getMenuImage, confirm } from '../../components/utils';
+import AvatarMenu from '../../components/AvatarMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Trash2, Plus, Minus, ShoppingBag, Utensils } from 'lucide-react';
 
@@ -82,12 +83,14 @@ export default function CartPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-4xl mx-auto px-6 h-20 flex items-center justify-between">
-          <button onClick={() => navigate('/order/menu')} className="flex items-center gap-2 text-text-muted hover:text-primary transition">
+          <button onClick={() => navigate('/order/menu')} className="flex items-center gap-2 text-text-muted hover:text-primary transition w-24">
             <ArrowLeft size={20} />
-            <span className="font-semibold">Kembali ke Menu</span>
+            <span className="font-semibold hidden sm:inline">Kembali</span>
           </button>
           <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70">Keranjang</h1>
-          <div className="w-20"></div> {/* Spacer for centering */}
+          <div className="w-24 flex justify-end">
+            <AvatarMenu />
+          </div>
         </div>
       </header>
 

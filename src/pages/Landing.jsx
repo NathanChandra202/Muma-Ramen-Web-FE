@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { auth as authApi } from '../api';
 import { login } from '../auth';
 import { showToast } from '../components/utils';
@@ -7,9 +7,16 @@ import { motion } from 'framer-motion';
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tab, setTab] = useState('login');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', phone: '', password: '' });
+
+  useEffect(() => {
+    if (location.state?.tab) {
+      setTab(location.state.tab);
+    }
+  }, [location.state]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
