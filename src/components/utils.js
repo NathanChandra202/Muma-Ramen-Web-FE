@@ -110,8 +110,9 @@ export function formatShortDate(dateStr) {
 // Status label
 export function getStatusLabel(status) {
   const labels = {
-    pending: 'Menunggu',
-    preparing: 'Diproses',
+    unpaid: 'Menunggu Pembayaran',
+    pending: 'Menunggu Diproses',
+    preparing: 'Sedang Disiapkan',
     ready: 'Siap',
     completed: 'Selesai',
     cancelled: 'Dibatalkan',

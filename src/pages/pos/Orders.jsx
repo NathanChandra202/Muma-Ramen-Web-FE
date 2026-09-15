@@ -126,7 +126,7 @@ export default function POSOrders() {
                 <h3 className="font-black text-lg">#{order.id}</h3>
                 <p className="text-sm font-semibold">{getOrderTypeLabel(order.order_type)} {order.table_number && `- Meja ${order.table_number}`} {order.customer_name && `- ${order.customer_name}`}</p>
               </div>
-              <span className={`px-2 py-1 rounded text-xs font-bold border ${order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : order.status === 'cancelled' ? 'bg-red-500/10 text-red-600 border-red-500/20' : 'bg-primary/10 text-primary border-primary/20'}`}>
+              <span className={`px-2 py-1 rounded text-xs font-bold border ${order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : order.status === 'cancelled' ? 'bg-red-500/10 text-red-600 border-red-500/20' : order.status === 'unpaid' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-primary/10 text-primary border-primary/20'}`}>
                 {getStatusLabel(order.status)}
               </span>
             </div>
@@ -148,8 +148,9 @@ export default function POSOrders() {
             </div>
 
             {/* Actions for Active Orders */}
-            {['pending', 'preparing', 'ready'].includes(order.status) && (
+            {['unpaid', 'pending', 'preparing', 'ready'].includes(order.status) && (
               <div className="mt-4 flex gap-2">
+                {order.status === 'unpaid' && <button onClick={() => updateStatus(order.id, 'pending')} className="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-sm transition">Lunas</button>}
                 {order.status === 'pending' && <button onClick={() => updateStatus(order.id, 'preparing')} className="flex-1 py-2 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg text-sm transition">Proses</button>}
                 {order.status === 'preparing' && <button onClick={() => updateStatus(order.id, 'ready')} className="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg text-sm transition">Siap</button>}
                 {order.status === 'ready' && <button onClick={() => updateStatus(order.id, 'completed')} className="flex-1 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg text-sm transition">Selesai</button>}

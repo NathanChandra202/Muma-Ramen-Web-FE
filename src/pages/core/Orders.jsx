@@ -102,6 +102,7 @@ export default function Orders() {
       case 'cancelled': return 'bg-red-500/10 text-red-600 border-red-500/20';
       case 'ready': return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
       case 'preparing': return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+      case 'unpaid': return 'bg-orange-500/10 text-orange-600 border-orange-500/20';
       default: return 'bg-gray-500/10 text-gray-600 border-gray-500/20';
     }
   };
@@ -155,7 +156,7 @@ export default function Orders() {
         </div>
         <div className="glass p-4 rounded-xl text-center">
           <p className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-1">Aktif</p>
-          <p className="text-2xl font-black">{orders.filter(o => ['pending', 'preparing', 'ready'].includes(o.status)).length}</p>
+          <p className="text-2xl font-black">{orders.filter(o => ['unpaid', 'pending', 'preparing', 'ready'].includes(o.status)).length}</p>
         </div>
         <div className="glass p-4 rounded-xl text-center">
           <p className="text-xs font-bold text-emerald-500 uppercase tracking-wider mb-1">Selesai</p>
@@ -221,6 +222,9 @@ export default function Orders() {
                       </button>
 
                       {/* Status update buttons */}
+                      {order.status === 'unpaid' && (
+                        <button onClick={() => updateStatus(order.id, 'pending')} className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-lg text-xs transition">Lunas</button>
+                      )}
                       {order.status === 'pending' && (
                         <button onClick={() => updateStatus(order.id, 'preparing')} className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg text-xs transition">Proses</button>
                       )}
@@ -230,7 +234,7 @@ export default function Orders() {
                       {order.status === 'ready' && (
                         <button onClick={() => updateStatus(order.id, 'completed')} className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-lg text-xs transition">Selesai</button>
                       )}
-                      {['pending', 'preparing', 'ready'].includes(order.status) && (
+                      {['unpaid', 'pending', 'preparing', 'ready'].includes(order.status) && (
                         <button onClick={() => handleCancel(order.id)} className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white font-bold rounded-lg text-xs transition border border-red-500/20">Batal</button>
                       )}
                     </div>

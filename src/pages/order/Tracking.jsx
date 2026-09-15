@@ -4,7 +4,7 @@ import { orders as ordersApi } from '../../api';
 import { showToast, formatPrice, formatDate, getStatusLabel, getOrderTypeLabel } from '../../components/utils';
 import AvatarMenu from '../../components/AvatarMenu';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Clock, CheckCircle, ChefHat, Package, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, ChefHat, Package, CheckCircle2, Wallet } from 'lucide-react';
 
 export default function TrackingPage() {
   const { id } = useParams();
@@ -42,8 +42,9 @@ export default function TrackingPage() {
   }
 
   const steps = [
+    { status: 'unpaid', icon: Wallet, label: 'Bayar' },
     { status: 'pending', icon: Clock, label: 'Menunggu' },
-    { status: 'preparing', icon: ChefHat, label: 'Diproses' },
+    { status: 'preparing', icon: ChefHat, label: 'Disiapkan' },
     { status: 'ready', icon: Package, label: 'Siap' },
     { status: 'completed', icon: CheckCircle2, label: 'Selesai' },
   ];
