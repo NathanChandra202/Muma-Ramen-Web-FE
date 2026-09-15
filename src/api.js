@@ -1,5 +1,5 @@
 // API Client for Muma Ramen Backend
-export const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8081/api';
+export const API_BASE = import.meta.env.VITE_API_BASE || 'https://api-order-mumaramen.duaenam.id/api';
 
 function getToken() {
   return localStorage.getItem('muma_token');
