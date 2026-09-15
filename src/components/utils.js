@@ -137,6 +137,13 @@ export function getOrderTypeLabel(type) {
 export function getImageUrl(path) {
   if (!path) return null;
   if (path.startsWith('http')) return path;
+  
+  // NGINX on production usually only forwards /api to the backend. 
+  // We configured backend to serve static files under /api/uploads as well.
+  if (path.startsWith('/uploads') || path.startsWith('/images')) {
+    return `${API_BASE}${path}`;
+  }
+  
   return `${API_HOST}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 
