@@ -60,8 +60,9 @@ export default function TrackingPage() {
               <ArrowLeft size={24} />
             </button>
             <div>
-              <h1 className="text-xl font-bold">Lacak Pesanan</h1>
-              <p className="text-xs text-text-muted">Order #{order.id}</p>
+              <h1 className="text-xl font-bold text-text">Lacak Pesanan</h1>
+              <p className="text-xs text-text-muted">Order {order.order_number}</p>
+              <p className="text-sm font-bold mt-0.5 text-primary">{order.order_type === 'dine_in' ? 'Dine In' : 'Take Away'} {order.table_number && `- Meja ${order.table_number}`}</p>
             </div>
           </div>
           <AvatarMenu />

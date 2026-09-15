@@ -51,7 +51,7 @@ export default function Orders() {
         <div class="flex justify-between border-b border-border pb-4">
           <div>
             <p class="text-sm text-text-muted">ID Pesanan</p>
-            <p class="font-bold">#${order.id}</p>
+            <p class="font-bold">${order.order_number}</p>
           </div>
           <div class="text-right">
             <p class="text-sm text-text-muted">Waktu</p>
@@ -93,7 +93,7 @@ export default function Orders() {
         </div>
       </div>
     `;
-    showModal({ title: `Detail Pesanan #${order.id}`, content, wide: true });
+    showModal({ title: `Detail Pesanan ${order.order_number}`, content, wide: true });
   };
 
   const getStatusColor = (status) => {
@@ -111,7 +111,7 @@ export default function Orders() {
     if (filter === 'active' && ['completed', 'cancelled'].includes(o.status)) return false;
     if (filter === 'completed' && o.status !== 'completed') return false;
     if (filter === 'cancelled' && o.status !== 'cancelled') return false;
-    if (search && !o.id.toString().includes(search) && !(o.table_number && o.table_number.includes(search))) return false;
+    if (search && !o.order_number?.toLowerCase().includes(search.toLowerCase()) && !o.id.toString().includes(search) && !(o.table_number && o.table_number.includes(search))) return false;
     return true;
   });
 
@@ -193,7 +193,7 @@ export default function Orders() {
                 </td></tr>
               ) : filteredOrders.map(order => (
                 <tr key={order.id} className="hover:bg-surface-hover/30 transition-colors">
-                  <td className="p-4 font-black text-lg">#{order.id}</td>
+                  <td className="p-4 font-black text-lg">{order.order_number}</td>
                   <td className="p-4">
                     <span className="font-semibold">{getOrderTypeLabel(order.order_type)}</span>
                     {order.table_number && <span className="ml-2 px-2 py-0.5 bg-background border border-border rounded text-xs font-bold">Meja {order.table_number}</span>}

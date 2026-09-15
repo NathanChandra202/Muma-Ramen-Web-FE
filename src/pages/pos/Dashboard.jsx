@@ -111,7 +111,7 @@ export default function POSDashboard() {
                 <tbody className="divide-y divide-border">
                   {activeOrders.map(order => (
                     <tr key={order.id} className="hover:bg-surface-hover/30 transition-colors">
-                      <td className="p-4 font-semibold">#{order.id}</td>
+                      <td className="p-4 font-semibold">{order.order_number}</td>
                       <td className="p-4">
                         <span className="font-semibold">{order.order_type === 'dine_in' ? 'Dine In' : 'Take Away'}</span>
                         {order.table_number && <span className="ml-2 px-2 py-0.5 bg-background border border-border rounded text-xs font-bold">Meja {order.table_number}</span>}

@@ -87,13 +87,13 @@ export default function POSOrders() {
       </div>
     `;
     
-    showModal({ title: `Detail Pesanan #${order.id}`, content, wide: true });
+    showModal({ title: `Detail Pesanan ${order.order_number}`, content, wide: true });
   };
 
   const filteredOrders = orders.filter(o => {
     if (filter === 'active' && ['completed', 'cancelled'].includes(o.status)) return false;
     if (filter === 'completed' && o.status !== 'completed') return false;
-    if (search && !o.id.toString().includes(search) && !(o.table_number && o.table_number.includes(search))) return false;
+    if (search && !o.order_number?.toLowerCase().includes(search.toLowerCase()) && !o.id.toString().includes(search) && !(o.table_number && o.table_number.includes(search))) return false;
     return true;
   });
 
@@ -123,7 +123,7 @@ export default function POSOrders() {
           <div key={order.id} className="glass rounded-2xl p-6 border border-border flex flex-col">
             <div className="flex justify-between items-start mb-4">
               <div>
-                <h3 className="font-black text-lg">#{order.id}</h3>
+                <h3 className="font-black text-lg">{order.order_number}</h3>
                 <p className="text-sm font-semibold">{getOrderTypeLabel(order.order_type)} {order.table_number && `- Meja ${order.table_number}`} {order.customer_name && `- ${order.customer_name}`}</p>
               </div>
               <span className={`px-2 py-1 rounded text-xs font-bold border ${order.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' : order.status === 'cancelled' ? 'bg-red-500/10 text-red-600 border-red-500/20' : order.status === 'unpaid' ? 'bg-orange-500/10 text-orange-600 border-orange-500/20' : 'bg-primary/10 text-primary border-primary/20'}`}>

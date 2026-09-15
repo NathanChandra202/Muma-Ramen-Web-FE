@@ -69,7 +69,7 @@ export default function HistoryPage() {
               >
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <span className="text-xs font-bold text-text-muted">#{order.id}</span>
+                    <span className="text-xs font-bold text-text-muted">{order.order_number}</span>
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${getStatusColor(order.status)}`}>
                       {getStatusLabel(order.status)}
                     </span>

@@ -6,9 +6,9 @@ import { getUser, isLoggedIn } from '../../auth';
 import { showToast, formatPrice, getMenuImage, getMenuImages } from '../../components/utils';
 import AvatarMenu from '../../components/AvatarMenu';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ShoppingCart, Clock, LayoutGrid, Coffee, MapPin, X } from 'lucide-react';
+import { Search, ShoppingCart, Clock, Coffee, MapPin, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const SpotlightCard = ({ children, className = '' }) => {
+const SpotlightCard = ({ children, className = '', onClick }) => {
   const divRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [opacity, setOpacity] = useState(0);
@@ -25,6 +25,7 @@ const SpotlightCard = ({ children, className = '' }) => {
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setOpacity(1)}
       onMouseLeave={() => setOpacity(0)}
+      onClick={onClick}
       className={`relative overflow-hidden rounded-2xl bg-surface border border-border transition-transform hover:-translate-y-1 hover:shadow-2xl ${className}`}
     >
       <div
@@ -51,35 +52,61 @@ const SpotlightCard = ({ children, className = '' }) => {
   );
 };
 
-const MenuImageCarousel = ({ item }) => {
+const MenuImageCarousel = ({ item, className = "h-48" }) => {
   const images = getMenuImages(item);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   return (
-    <div className="h-48 relative overflow-hidden group">
-      <div 
-        className="flex h-full w-full transition-transform duration-300 ease-out" 
+    <div className={`relative overflow-hidden group w-full ${className}`}>
+      <div
+        className="flex h-full w-full transition-transform duration-300 ease-out"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {images.map((url, i) => (
-          <div 
-            key={i} 
-            className="w-full h-full flex-shrink-0 bg-surface bg-cover bg-center" 
-            style={{ backgroundImage: `url('${url}')` }} 
-          />
+          <div key={i} className="relative w-full h-full flex-shrink-0 bg-black/5 flex items-center justify-center overflow-hidden">
+            {/* Blurred background for aspect ratio matching */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center opacity-30 blur-xl scale-110" 
+              style={{ backgroundImage: `url('${url}')` }} 
+            />
+            {/* Actual image */}
+            <div
+              className="relative w-full h-full bg-contain bg-center bg-no-repeat z-10 drop-shadow-xl"
+              style={{ backgroundImage: `url('${url}')` }}
+            />
+          </div>
         ))}
       </div>
-      
+
       {images.length > 1 && (
-        <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
-          {images.map((_, i) => (
-            <button 
-              key={i}
-              onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); }}
-              className={`w-1.5 h-1.5 rounded-full transition-all ${i === currentIndex ? 'bg-primary w-3' : 'bg-white/50 hover:bg-white'}`}
-            />
-          ))}
-        </div>
+        <>
+          <div className="absolute inset-y-0 left-0 flex items-center px-2 z-10">
+            <button
+              onClick={(e) => { e.stopPropagation(); setCurrentIndex((prev) => (prev - 1 + images.length) % images.length); }}
+              className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors backdrop-blur-sm"
+            >
+              <ChevronLeft size={18} />
+            </button>
+          </div>
+          <div className="absolute inset-y-0 right-0 flex items-center px-2 z-10">
+            <button
+              onClick={(e) => { e.stopPropagation(); setCurrentIndex((prev) => (prev + 1) % images.length); }}
+              className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 text-white flex items-center justify-center transition-colors backdrop-blur-sm"
+            >
+              <ChevronRight size={18} />
+            </button>
+          </div>
+          
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-10">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); setCurrentIndex(i); }}
+                className={`w-1.5 h-1.5 rounded-full transition-all ${i === currentIndex ? 'bg-primary w-3' : 'bg-white/50 hover:bg-white'}`}
+              />
+            ))}
+          </div>
+        </>
       )}
 
       {/* Overlays */}
@@ -105,6 +132,8 @@ export default function MenuPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(0);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   const user = getUser();
 
@@ -126,9 +155,17 @@ export default function MenuPage() {
   const filtered = menuItems.filter(item => {
     const matchCat = activeCategory === 'all' || item.category_id == activeCategory;
     const matchSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchQuery.toLowerCase());
+      (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchCat && matchSearch;
   });
+
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const currentItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // Reset page when filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery]);
 
   const handleAddToCart = (e, item) => {
     e.stopPropagation();
@@ -143,43 +180,43 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-background text-white selection:bg-primary/30">
-      
+
       {/* Modal Details */}
       <AnimatePresence>
         {selectedItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedItem(null)}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-              animate={{ opacity: 1, scale: 1, y: 0 }} 
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]"
+              className="relative w-full max-w-4xl bg-surface border border-border rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh]"
             >
-              <button 
+              <button
                 onClick={() => setSelectedItem(null)}
-                className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur transition"
+                className="absolute top-4 right-4 z-20 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/80 backdrop-blur-md transition shadow-lg"
               >
-                <X size={18} />
+                <X size={20} />
               </button>
-              
-              <div className="h-64 sm:h-80 w-full shrink-0">
-                <MenuImageCarousel item={selectedItem} />
+
+              <div className="h-64 sm:h-80 md:h-auto md:min-h-[400px] md:w-1/2 shrink-0 bg-black/5 relative flex">
+                <MenuImageCarousel item={selectedItem} className="h-full absolute inset-0" />
               </div>
-              
-              <div className="p-6 overflow-y-auto">
+
+              <div className="p-8 md:p-10 overflow-y-auto md:w-1/2 flex flex-col bg-surface">
                 <span className="text-xs text-primary font-bold uppercase tracking-wider mb-2 block">{selectedItem.category?.name}</span>
-                <h2 className="text-2xl font-bold mb-2">{selectedItem.name}</h2>
-                <p className="text-xl font-bold text-white mb-6">{formatPrice(selectedItem.price)}</p>
-                
-                <h3 className="font-semibold text-text-muted mb-2">Deskripsi</h3>
-                <p className="text-text/80 mb-8 whitespace-pre-wrap leading-relaxed">{selectedItem.description}</p>
-                
+                <h2 className="text-3xl font-black mb-2 text-text">{selectedItem.name}</h2>
+                <p className="text-2xl font-bold text-primary mb-8">{formatPrice(selectedItem.price)}</p>
+
+                <h3 className="font-semibold text-text-muted mb-3 uppercase tracking-widest text-xs">Deskripsi</h3>
+                <p className="text-text/90 mb-8 whitespace-pre-wrap leading-relaxed flex-1">{selectedItem.description}</p>
+
                 <button
                   disabled={selectedItem.stock === 0}
                   onClick={(e) => {
@@ -201,7 +238,8 @@ export default function MenuPage() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="Muma Ramen Logo" className="h-12 w-12 rounded-xl object-cover shadow-[0_0_15px_rgba(231,123,38,0.3)]" />
+            <img src="/logo.png" alt="Muma Ram
+          en Logo" className="h-12 w-12 rounded-xl object-cover shadow-[0_0_15px_rgba(231,123,38,0.3)]" />
             <div>
               <h1 className="text-xl font-bold text-text">Muma Ramen</h1>
               <p className="text-[10px] uppercase tracking-widest text-primary font-bold">Premium Japanese</p>
@@ -286,7 +324,7 @@ export default function MenuPage() {
 
         {/* Menu Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filtered.length > 0 ? filtered.map((item, i) => (
+          {currentItems.length > 0 ? currentItems.map((item, i) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 20 }}
@@ -322,6 +360,59 @@ export default function MenuPage() {
             </div>
           )}
         </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-12">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg bg-surface border border-border text-text hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <div className="flex gap-1">
+              {[...Array(totalPages)].map((_, idx) => {
+                const pageNum = idx + 1;
+                // Only show a few page numbers around the current page
+                if (
+                  pageNum === 1 || 
+                  pageNum === totalPages || 
+                  (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`w-10 h-10 rounded-lg font-bold transition ${
+                        currentPage === pageNum 
+                          ? 'bg-primary text-white shadow-md' 
+                          : 'bg-surface border border-border text-text-muted hover:bg-surface-hover'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                } else if (
+                  pageNum === currentPage - 2 || 
+                  pageNum === currentPage + 2
+                ) {
+                  return <span key={pageNum} className="w-8 flex items-center justify-center text-text-muted">...</span>;
+                }
+                return null;
+              })}
+            </div>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg bg-surface border border-border text-text hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -5,7 +5,7 @@ import { menu as menuApi, categories as catApi } from '../../api';
 import { showToast, formatPrice, getMenuImage } from '../../components/utils';
 import { coreLinks } from './Dashboard';
 
-const emptyForm = { name: '', description: '', price: '', category_id: '', stock: '', is_available: true };
+const emptyForm = { name: '', description: '', price: '', category_id: '', stock: '', is_available: true, imageFiles: null };
 
 export default function MenuMgmt() {
   const [items, setItems] = useState([]);
@@ -45,6 +45,7 @@ export default function MenuMgmt() {
       category_id: item.category_id?.toString() || '',
       stock: item.stock?.toString() || '0',
       is_available: item.is_available,
+      imageFiles: null,
     });
     setShowForm(true);
   };
@@ -73,12 +74,24 @@ export default function MenuMgmt() {
         is_available: formData.is_available,
       };
 
+      let savedItemId = null;
       if (editingItem) {
         await menuApi.update(editingItem.id, payload);
+        savedItemId = editingItem.id;
         showToast('Menu berhasil diupdate', 'success');
       } else {
-        await menuApi.create(payload);
+        const res = await menuApi.create(payload);
+        savedItemId = res.menu_item.id;
         showToast('Menu baru berhasil ditambahkan', 'success');
+      }
+
+      // Upload image if selected
+      if (savedItemId && formData.imageFiles && formData.imageFiles.length > 0) {
+        const formPayload = new FormData();
+        for (let i = 0; i < formData.imageFiles.length; i++) {
+          formPayload.append('images', formData.imageFiles[i]);
+        }
+        await menuApi.uploadImage(savedItemId, formPayload);
       }
 
       closeForm();
@@ -192,12 +205,8 @@ export default function MenuMgmt() {
                 <tr key={item.id} className="hover:bg-surface-hover/30 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="relative group">
+                      <div className="relative group w-12 h-12 shrink-0">
                         <img src={getMenuImage(item.image_url, item.name)} alt={item.name} className="w-12 h-12 rounded-lg object-cover bg-surface-hover" />
-                        <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer">
-                          <Upload size={16} className="text-white" />
-                          <input type="file" accept="image/*" multiple className="hidden" onChange={e => handleImageUpload(item.id, e.target.files)} />
-                        </label>
                       </div>
                       <div>
                         <p className="font-bold">{item.name}</p>
@@ -325,6 +334,35 @@ export default function MenuMgmt() {
                   <div className="w-11 h-6 bg-border rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                 </label>
                 <span className="text-sm font-semibold">Tersedia / Aktif</span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Foto Menu (Akan ditambahkan ke foto yang sudah ada)</label>
+                <div className="relative group rounded-xl overflow-hidden bg-surface-hover border border-border/50 hover:border-primary/50 transition">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={e => setFormData({ ...formData, imageFiles: e.target.files })}
+                    className="w-full text-sm text-text-muted file:mr-4 file:py-3 file:px-4 file:rounded-l-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                  />
+                </div>
+                {editingItem && editingItem.image_url && (
+                  <button 
+                    type="button" 
+                    onClick={async () => {
+                      if (window.confirm('Yakin ingin menghapus semua foto menu ini?')) {
+                        await menuApi.update(editingItem.id, { image_url: '', images: '[]' });
+                        showToast('Foto berhasil dihapus', 'success');
+                        fetchData();
+                        closeForm();
+                      }
+                    }}
+                    className="mt-2 text-xs font-bold text-red-500 hover:text-red-600 transition"
+                  >
+                    Hapus Semua Foto Lama
+                  </button>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">

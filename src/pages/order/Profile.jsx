@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
-import { api } from '../../api';
+import { auth, users } from '../../api';
+import { logout } from '../../auth';
+import { useNavigate } from 'react-router-dom';
 
 function ProfilePage() {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({ name: '', email: '', phone: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -13,11 +16,11 @@ function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await api.get('/auth/me');
+      const res = await auth.me();
       setProfile({
-        name: res.data.user.name || '',
-        email: res.data.user.email || '',
-        phone: res.data.user.phone || ''
+        name: res.user.name || '',
+        email: res.user.email || '',
+        phone: res.user.phone || ''
       });
     } catch (err) {
       setMessage({ type: 'error', text: 'Gagal memuat profil' });
@@ -32,7 +35,7 @@ function ProfilePage() {
     setMessage({ type: '', text: '' });
 
     try {
-      await api.put('/users/profile', profile);
+      await users.updateProfile(profile);
       setMessage({ type: 'success', text: 'Profil berhasil diperbarui' });
       // Update local storage user info
       const userStr = localStorage.getItem('user');
@@ -45,6 +48,11 @@ function ProfilePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   if (loading) return <div className="p-8 text-center text-text-muted">Loading...</div>;
@@ -97,9 +105,17 @@ function ProfilePage() {
         <button 
           type="submit" 
           disabled={saving}
-          className="w-full py-3 bg-primary hover:bg-orange-600 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+          className="w-full py-3 bg-primary hover:bg-orange-600 text-white rounded-lg font-bold transition-colors disabled:opacity-50 mt-4"
         >
           {saving ? 'Menyimpan...' : 'Simpan Profil'}
+        </button>
+
+        <button 
+          type="button" 
+          onClick={handleLogout}
+          className="w-full py-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-lg font-bold transition-colors mt-4 border border-red-500/20 hover:border-transparent"
+        >
+          Logout
         </button>
       </form>
     </div>

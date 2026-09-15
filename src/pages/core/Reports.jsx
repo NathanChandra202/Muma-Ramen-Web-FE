@@ -165,7 +165,7 @@ export default function Reports() {
                     <tbody className="divide-y divide-border">
                       {filteredOrders.slice(0, 10).map(order => (
                         <tr key={order.id} className="hover:bg-surface-hover/30 transition-colors">
-                          <td className="p-3 font-bold">#{order.id}</td>
+                          <td className="p-3 font-bold">{order.order_number}</td>
                           <td className="p-3 text-sm text-text-muted">{formatDate(order.created_at)}</td>
                           <td className="p-3">
                             <span className="px-2 py-1 bg-surface-hover rounded border border-border text-xs font-bold">
