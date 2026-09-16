@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logout, getUser } from '../auth';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, LogOut, ChevronRight, LayoutDashboard, Receipt, Package, PlusCircle, UtensilsCrossed, Settings, Users, BarChart3 } from 'lucide-react';
+import { Menu, X, LogOut, ChevronRight, LayoutDashboard, Receipt, Package, PlusCircle, UtensilsCrossed, Settings, Users, BarChart3, Store } from 'lucide-react';
 
 export default function AdminLayout({ children, title }) {
   const navigate = useNavigate();
@@ -33,6 +33,7 @@ export default function AdminLayout({ children, title }) {
         { label: 'Kelola Menu', path: '/core/menu', icon: UtensilsCrossed },
         { label: 'Kelola Kategori', path: '/core/categories', icon: Settings },
         { label: 'Kelola Stok', path: '/core/stock', icon: Package },
+        { label: 'Pengaturan Toko', path: '/core/settings', icon: Store },
         { label: 'Kelola Kasir & User', path: '/core/users', icon: Users },
       ];
     }
@@ -44,6 +45,7 @@ export default function AdminLayout({ children, title }) {
         { label: 'Kelola Menu', path: '/core/menu', icon: UtensilsCrossed },
         { label: 'Kelola Kategori', path: '/core/categories', icon: Settings },
         { label: 'Kelola Stok', path: '/core/stock', icon: Package },
+        { label: 'Pengaturan Toko', path: '/core/settings', icon: Store },
         { label: 'Kelola Pengguna', path: '/core/users', icon: Users },
       ];
     }
