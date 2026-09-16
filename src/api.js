@@ -128,4 +128,5 @@ export const dashboard = {
 export const settings = {
   get: () => request('/settings'),
   update: (data) => request('/settings', { method: 'PUT', body: JSON.stringify(data) }),
+  uploadImage: (formData) => request('/settings/image', { method: 'POST', body: formData }),
 };

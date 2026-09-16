@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { menu as menuApi, categories as catApi, settings as settingsApi } from '../../api';
 import { addToCart, getCartCount, onCartChange } from '../../cart';
 import { getUser, isLoggedIn } from '../../auth';
-import { showToast, formatPrice, getMenuImage, getMenuImages } from '../../components/utils';
+import { showToast, formatPrice, getMenuImage, getMenuImages, getImageUrl } from '../../components/utils';
 import AvatarMenu from '../../components/AvatarMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, Clock, Coffee, MapPin, X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -128,7 +128,16 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [storeSettings, setStoreSettings] = useState({ store_name: 'Muma Cibubur', store_hours: 'Buka • 10:00 - 22:00' });
+  const [storeSettings, setStoreSettings] = useState({ 
+    store_name: 'Muma Cibubur', 
+    store_hours: 'Buka • 10:00 - 22:00',
+    hero_title_1: 'Makan Malam',
+    hero_title_2: 'Lebih Nikmat',
+    hero_subtitle: 'Pesan ramen autentik Jepang favoritmu dengan mudah. Cepat, hangat, dan memuaskan.',
+    promo_badge: 'PROMO',
+    promo_text: 'Diskon 20% Dine-In',
+    promo_image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600'
+  });
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(0);
@@ -157,7 +166,13 @@ export default function MenuPage() {
           const s = settingsRes.settings || settingsRes;
           setStoreSettings({
             store_name: s.store_name || 'Muma Cibubur',
-            store_hours: s.store_hours || 'Buka • 10:00 - 22:00'
+            store_hours: s.store_hours || 'Buka • 10:00 - 22:00',
+            hero_title_1: s.hero_title_1 || 'Makan Malam',
+            hero_title_2: s.hero_title_2 || 'Lebih Nikmat',
+            hero_subtitle: s.hero_subtitle || 'Pesan ramen autentik Jepang favoritmu dengan mudah. Cepat, hangat, dan memuaskan.',
+            promo_badge: s.promo_badge || 'PROMO',
+            promo_text: s.promo_text || 'Diskon 20% Dine-In',
+            promo_image: s.promo_image || 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600'
           });
         }
       })
@@ -254,6 +269,10 @@ export default function MenuPage() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-2">
           <div className="flex items-center gap-3">
             <img src="/logo.png" alt="Muma Ramen Logo" className="h-10 w-10 md:h-12 md:w-12 rounded-xl object-cover shadow-[0_0_15px_rgba(231,123,38,0.3)] shrink-0" />
+            <div className="hidden md:flex flex-col justify-center">
+              <h1 className="text-xl font-bold text-text leading-tight">Muma Ramen</h1>
+              <p className="text-[10px] uppercase tracking-widest text-primary font-bold">Premium Japanese</p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 md:gap-4 shrink-0">
@@ -277,10 +296,10 @@ export default function MenuPage() {
       <main className="max-w-7xl mx-auto px-6 py-12">
         {/* Bento Box Hero Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <SpotlightCard className="md:col-span-2 p-8 md:p-12 flex flex-col justify-center relative overflow-hidden bg-gradient-to-br from-surface to-background">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">Makan Malam <br /><span className="text-primary">Lebih Nikmat</span></h2>
-            <p className="text-text-muted text-lg max-w-md">Pesan ramen autentik Jepang favoritmu dengan mudah. Cepat, hangat, dan memuaskan.</p>
+            <SpotlightCard className="md:col-span-2 p-8 md:p-12 flex flex-col justify-center relative overflow-hidden bg-gradient-to-br from-surface to-background">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <h2 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">{storeSettings.hero_title_1} <br /><span className="text-primary">{storeSettings.hero_title_2}</span></h2>
+              <p className="text-text-muted text-lg max-w-md">{storeSettings.hero_subtitle}</p>
 
             <div className="mt-8 relative max-w-md">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
@@ -303,11 +322,11 @@ export default function MenuPage() {
               <p className="text-xs text-text-muted mt-1">{storeSettings.store_hours}</p>
             </SpotlightCard>
 
-            <SpotlightCard className="p-6 flex-1 bg-[url('https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center">
+            <SpotlightCard className="p-6 flex-1 bg-cover bg-center" style={{ backgroundImage: `url('${getImageUrl(storeSettings.promo_image)}')` }}>
               <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
               <div className="relative z-10 h-full flex flex-col justify-end drop-shadow-md">
-                <span className="text-xs font-bold bg-primary text-background px-2 py-1 rounded w-fit mb-2">PROMO</span>
-                <h3 className="font-bold text-xl text-white">Diskon 20% Dine-In</h3>
+                <span className="text-xs font-bold bg-primary text-background px-2 py-1 rounded w-fit mb-2">{storeSettings.promo_badge}</span>
+                <h3 className="font-bold text-xl text-white">{storeSettings.promo_text}</h3>
               </div>
             </SpotlightCard>
           </div>
