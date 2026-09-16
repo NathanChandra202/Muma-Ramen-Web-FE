@@ -18,6 +18,7 @@ import CoreOrders from './pages/core/Orders';
 import CoreStock from './pages/core/Stock';
 import CoreUsers from './pages/core/Users';
 import CoreReports from './pages/core/Reports';
+import CoreSettings from './pages/core/SettingsMgmt';
 import POSCreate from './pages/pos/POSCreate';
 
 // Auth Guard Component
@@ -116,6 +117,11 @@ function App() {
         <Route path="/core/users" element={
           <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
             <CoreUsers />
+          </ProtectedRoute>
+        } />
+        <Route path="/core/settings" element={
+          <ProtectedRoute allowedRoles={['admin', 'superadmin']}>
+            <CoreSettings />
           </ProtectedRoute>
         } />
         

@@ -27,7 +27,16 @@ async function request(endpoint, options = {}) {
       headers,
     });
 
-    const data = await res.json();
+    let data = {};
+    const contentType = res.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      data = await res.json();
+    } else {
+      await res.text(); // consume the body
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}. Please ensure backend is updated.`);
+      }
+    }
 
     if (!res.ok) {
       throw new Error(data.error || `HTTP ${res.status}`);
@@ -113,4 +122,10 @@ export const users = {
 // Dashboard
 export const dashboard = {
   stats: () => request('/dashboard/stats'),
+};
+
+// Settings
+export const settings = {
+  get: () => request('/settings'),
+  update: (data) => request('/settings', { method: 'PUT', body: JSON.stringify(data) }),
 };

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { menu as menuApi, categories as catApi } from '../../api';
+import { menu as menuApi, categories as catApi, settings as settingsApi } from '../../api';
 import { addToCart, getCartCount, onCartChange } from '../../cart';
 import { getUser, isLoggedIn } from '../../auth';
 import { showToast, formatPrice, getMenuImage, getMenuImages } from '../../components/utils';
@@ -128,6 +128,7 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [menuItems, setMenuItems] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [storeSettings, setStoreSettings] = useState({ store_name: 'Muma Cibubur', store_hours: 'Buka • 10:00 - 22:00' });
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [cartCount, setCartCount] = useState(0);
@@ -141,10 +142,24 @@ export default function MenuPage() {
     setCartCount(getCartCount());
     const unsub = onCartChange(() => setCartCount(getCartCount()));
 
-    Promise.all([menuApi.list({ available: 'true' }), catApi.list()])
-      .then(([m, c]) => {
-        setMenuItems(m.menu || []);
+    Promise.all([
+      menuApi.list({ available: 'true' }),
+      catApi.list(),
+      settingsApi.get().catch(err => {
+        console.warn('Failed to fetch settings (maybe backend not updated yet), using defaults.', err);
+        return { store_name: 'Muma Cibubur', store_hours: 'Buka • 10:00 - 22:00' };
+      })
+    ])
+      .then(([m, c, settingsRes]) => {
+        setMenuItems(m.menu || m.items || []);
         setCategories(c.categories || []);
+        if (settingsRes) {
+          const s = settingsRes.settings || settingsRes;
+          setStoreSettings({
+            store_name: s.store_name || 'Muma Cibubur',
+            store_hours: s.store_hours || 'Buka • 10:00 - 22:00'
+          });
+        }
       })
       .catch(err => showToast(err.message, 'error'))
       .finally(() => setLoading(false));
@@ -284,8 +299,8 @@ export default function MenuPage() {
               <div className="w-12 h-12 bg-orange-500/10 text-primary rounded-full flex items-center justify-center mb-3">
                 <MapPin size={24} />
               </div>
-              <h3 className="font-bold text-lg">Muma Cibubur</h3>
-              <p className="text-xs text-text-muted mt-1">Buka • 10:00 - 22:00</p>
+              <h3 className="font-bold text-lg">{storeSettings.store_name}</h3>
+              <p className="text-xs text-text-muted mt-1">{storeSettings.store_hours}</p>
             </SpotlightCard>
 
             <SpotlightCard className="p-6 flex-1 bg-[url('https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center">

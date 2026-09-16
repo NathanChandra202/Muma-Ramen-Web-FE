@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, UtensilsCrossed, Settings, Receipt, Package, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, Receipt, UtensilsCrossed, Settings, Users, Package, TrendingUp, TrendingDown, RefreshCcw, BarChart3, Store } from 'lucide-react';
 import AdminLayout from '../../components/AdminLayout';
 import { dashboard as dashboardApi } from '../../api';
 import { showToast, formatPrice } from '../../components/utils';
@@ -11,6 +11,7 @@ export const coreLinks = [
   { label: 'Kelola Menu', path: '/core/menu', icon: UtensilsCrossed },
   { label: 'Kelola Kategori', path: '/core/categories', icon: Settings },
   { label: 'Kelola Stok', path: '/core/stock', icon: Package },
+  { label: 'Pengaturan Toko', path: '/core/settings', icon: Store },
   { label: 'Pengguna', path: '/core/users', icon: Users },
 ];
 
