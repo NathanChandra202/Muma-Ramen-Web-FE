@@ -236,23 +236,18 @@ export default function MenuPage() {
 
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <img src="/logo.png" alt="Muma Ram
-          en Logo" className="h-12 w-12 rounded-xl object-cover shadow-[0_0_15px_rgba(231,123,38,0.3)]" />
-            <div>
-              <h1 className="text-xl font-bold text-text">Muma Ramen</h1>
-              <p className="text-[10px] uppercase tracking-widest text-primary font-bold">Premium Japanese</p>
-            </div>
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="Muma Ramen Logo" className="h-10 w-10 md:h-12 md:w-12 rounded-xl object-cover shadow-[0_0_15px_rgba(231,123,38,0.3)] shrink-0" />
           </div>
 
-          <div className="flex items-center gap-4">
-            <button onClick={() => navigate('/order/history')} className="p-2.5 text-text-muted hover:text-primary hover:bg-surface rounded-full transition">
+          <div className="flex items-center gap-2 md:gap-4 shrink-0">
+            <button onClick={() => navigate('/order/history')} className="p-2 md:p-2.5 text-text-muted hover:text-primary hover:bg-surface rounded-full transition">
               <Clock size={20} />
             </button>
-            <button onClick={() => navigate('/order/cart')} className="relative p-2.5 text-text bg-surface hover:bg-surface-hover border border-border rounded-full transition flex items-center gap-2 px-5">
+            <button onClick={() => navigate('/order/cart')} className="relative p-2.5 md:px-5 text-text bg-surface hover:bg-surface-hover border border-border rounded-full transition flex items-center justify-center gap-2">
               <ShoppingCart size={18} />
-              <span className="text-sm font-semibold">Keranjang</span>
+              <span className="hidden md:inline text-sm font-semibold">Keranjang</span>
               {cartCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-background">
                   {cartCount}

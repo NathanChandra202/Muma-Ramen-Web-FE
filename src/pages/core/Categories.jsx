@@ -12,6 +12,8 @@ export default function Categories() {
   const [editingCat, setEditingCat] = useState(null);
   const [formData, setFormData] = useState({ name: '', description: '', sort_order: 0, imageFile: null });
   const [saving, setSaving] = useState(false);
+  const [existingImage, setExistingImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => { fetchCategories(); }, []);
 
@@ -25,6 +27,9 @@ export default function Categories() {
   const openCreateForm = () => {
     setEditingCat(null);
     setFormData({ name: '', description: '', sort_order: 0, imageFile: null });
+    setExistingImage(null);
+    if (previewImage) URL.revokeObjectURL(previewImage);
+    setPreviewImage(null);
     setShowForm(true);
   };
 
@@ -36,12 +41,31 @@ export default function Categories() {
       sort_order: cat.sort_order || 0,
       imageFile: null
     });
+    setExistingImage(cat.image_url || null);
+    if (previewImage) URL.revokeObjectURL(previewImage);
+    setPreviewImage(null);
     setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false);
     setEditingCat(null);
+    if (previewImage) URL.revokeObjectURL(previewImage);
+    setPreviewImage(null);
+    setExistingImage(null);
+  };
+
+  const handleDeleteExistingImage = async () => {
+    if (!confirm('Yakin ingin menghapus foto kategori ini?')) return;
+    try {
+      await catApi.update(editingCat.id, { image_url: '' });
+      setExistingImage(null);
+      setEditingCat({ ...editingCat, image_url: '' });
+      setCategories(categories.map(c => c.id === editingCat.id ? { ...c, image_url: '' } : c));
+      showToast('Foto kategori dihapus', 'success');
+    } catch (err) {
+      showToast('Gagal menghapus foto', 'error');
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -223,12 +247,43 @@ export default function Categories() {
 
               <div>
                 <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Gambar Kategori</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={e => setFormData({ ...formData, imageFile: e.target.files[0] })}
-                  className="w-full bg-background border border-border rounded-lg px-4 py-3 text-text focus:outline-none focus:border-primary transition"
-                />
+                <div className="relative group rounded-xl overflow-hidden bg-surface-hover border border-border/50 hover:border-primary/50 transition">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => {
+                      const file = e.target.files[0];
+                      setFormData({ ...formData, imageFile: file });
+                      if (previewImage) URL.revokeObjectURL(previewImage);
+                      setPreviewImage(file ? URL.createObjectURL(file) : null);
+                    }}
+                    className="w-full text-sm text-text-muted file:mr-4 file:py-3 file:px-4 file:rounded-l-xl file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                  />
+                </div>
+                
+                {(existingImage || previewImage) && (
+                  <div className="mt-4 flex gap-3">
+                    {existingImage && !previewImage && (
+                      <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-border/50 group/img">
+                        <img src={getImageUrl(existingImage)} alt="Preview" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={handleDeleteExistingImage}
+                          className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center rounded-full bg-black/60 text-white opacity-0 group-hover/img:opacity-100 hover:bg-red-500 transition-all scale-75 group-hover/img:scale-100 shadow-sm"
+                          title="Hapus foto ini"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    )}
+                    {previewImage && (
+                      <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-primary/50 group/img">
+                        <img src={previewImage} alt="New Preview" className="w-full h-full object-cover opacity-80" />
+                        <span className="absolute bottom-1 right-1 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">Baru</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex justify-end gap-3 pt-4 border-t border-border">

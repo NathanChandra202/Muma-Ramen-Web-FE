@@ -144,6 +144,11 @@ export function getImageUrl(path) {
     return `${API_BASE}${path}`;
   }
   
+  // If it's a seed image name like 'tantanmen.jpg', it is stored in /images/
+  if (!path.includes('/')) {
+    return `${API_BASE}/images/${path}`;
+  }
+  
   return `${API_HOST}${path.startsWith('/') ? '' : '/'}${path}`;
 }
 

@@ -107,6 +107,7 @@ export const users = {
   create: (data) => request('/users', { method: 'POST', body: JSON.stringify(data) }),
   update: (id, data) => request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   delete: (id) => request(`/users/${id}`, { method: 'DELETE' }),
+  updateProfile: (data) => request('/users/profile', { method: 'PUT', body: JSON.stringify(data) }),
 };
 
 // Dashboard

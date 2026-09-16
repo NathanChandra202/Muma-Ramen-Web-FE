@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { auth, users } from '../../api';
 import { logout } from '../../auth';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -59,7 +60,15 @@ function ProfilePage() {
 
   return (
     <div className="max-w-xl mx-auto mt-8 p-6 bg-surface rounded-xl border border-border">
-      <h2 className="text-2xl font-bold mb-6 text-text">Profil Saya</h2>
+      <div className="flex items-center gap-4 mb-6">
+        <button 
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-surface-hover text-text hover:bg-border transition-colors"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <h2 className="text-2xl font-bold text-text">Profil Saya</h2>
+      </div>
       
       {message.text && (
         <div className={`p-4 rounded-lg mb-6 ${message.type === 'error' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-green-500/10 text-green-500 border border-green-500/20'}`}>
