@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCart, getCartTotal, updateQuantity, updateItemNotes, removeFromCart, clearCart, onCartChange } from '../../cart';
-import { orders as ordersApi } from '../../api';
+import { orders as ordersApi, settings as settingsApi } from '../../api';
 import { isLoggedIn } from '../../auth';
-import { showToast, formatPrice, getMenuImage, confirm } from '../../components/utils';
+import { showToast, formatPrice, getMenuImage, getImageUrl, confirm } from '../../components/utils';
 import AvatarMenu from '../../components/AvatarMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Trash2, Plus, Minus, ShoppingBag, Utensils } from 'lucide-react';
@@ -16,6 +16,9 @@ export default function CartPage() {
   const [tableNumber, setTableNumber] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
+  const [phoneSource, setPhoneSource] = useState('manual');
+  const [profilePhone, setProfilePhone] = useState('');
+  const [storeSettings, setStoreSettings] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cash');
 
   useEffect(() => {
@@ -25,9 +28,19 @@ export default function CartPage() {
     const userStr = localStorage.getItem('user');
     if (userStr) {
       const user = JSON.parse(userStr);
-      if (user.phone) setCustomerPhone(user.phone);
+      if (user.phone) {
+        setProfilePhone(user.phone);
+        setCustomerPhone(user.phone);
+        setPhoneSource('profile');
+      } else {
+        setPhoneSource('manual');
+      }
       if (user.name) setCustomerName(user.name);
+    } else {
+      setPhoneSource('manual');
     }
+
+    settingsApi.get().then(res => setStoreSettings(res)).catch(console.warn);
     
     return () => unsub();
   }, []);
@@ -42,8 +55,8 @@ export default function CartPage() {
       showToast('Mohon isi nama pemesan', 'warning');
       return;
     }
-    if (!customerPhone) {
-      showToast('Mohon isi nomor telepon', 'warning');
+    if (!customerPhone || customerPhone.length < 10) {
+      showToast('Mohon isi nomor telepon dengan benar (minimal 10 digit)', 'warning');
       return;
     }
 
@@ -251,13 +264,37 @@ export default function CartPage() {
 
                   <div>
                     <label className="block text-xs font-semibold text-text-muted mb-2 uppercase tracking-wider">Nomor Telepon *</label>
-                    <input 
-                      type="text" 
-                      placeholder="0812..." 
-                      value={customerPhone}
-                      onChange={e => setCustomerPhone(e.target.value)}
-                      className="w-full bg-background border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted focus:outline-none focus:border-primary transition"
-                    />
+                    {profilePhone && (
+                      <div className="flex gap-4 mb-3">
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input 
+                            type="radio" 
+                            checked={phoneSource === 'profile'} 
+                            onChange={() => { setPhoneSource('profile'); setCustomerPhone(profilePhone); }}
+                            className="text-primary focus:ring-primary h-4 w-4"
+                          />
+                          <span>Dari Profil ({profilePhone})</span>
+                        </label>
+                        <label className="flex items-center gap-2 text-sm cursor-pointer">
+                          <input 
+                            type="radio" 
+                            checked={phoneSource === 'manual'} 
+                            onChange={() => { setPhoneSource('manual'); setCustomerPhone(''); }}
+                            className="text-primary focus:ring-primary h-4 w-4"
+                          />
+                          <span>Input Manual</span>
+                        </label>
+                      </div>
+                    )}
+                    {phoneSource === 'manual' && (
+                      <input 
+                        type="text" 
+                        placeholder="0812..." 
+                        value={customerPhone}
+                        onChange={e => setCustomerPhone(e.target.value)}
+                        className="w-full bg-background border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted focus:outline-none focus:border-primary transition"
+                      />
+                    )}
                   </div>
 
                   <div>
@@ -281,8 +318,11 @@ export default function CartPage() {
                   {paymentMethod === 'qris' && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="p-4 bg-white rounded-xl border border-border flex flex-col items-center">
                       <p className="text-sm font-bold text-gray-800 mb-2">Scan untuk Membayar</p>
-                      {/* Using a placeholder for QRIS */}
-                      <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=MUMA_RAMEN_QRIS_PLACEHOLDER" alt="QRIS" className="w-48 h-48 rounded-lg shadow-sm" />
+                      {storeSettings?.qris_image ? (
+                        <img src={getImageUrl(storeSettings.qris_image)} alt="QRIS" className="w-48 h-48 rounded-lg shadow-sm object-contain" />
+                      ) : (
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=MUMA_RAMEN_QRIS_PLACEHOLDER" alt="QRIS" className="w-48 h-48 rounded-lg shadow-sm" />
+                      )}
                       <p className="text-xs text-gray-500 mt-3 text-center">Buka aplikasi m-banking atau e-wallet, pilih scan QRIS.</p>
                     </motion.div>
                   )}

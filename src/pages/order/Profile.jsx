@@ -32,6 +32,12 @@ function ProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (profile.phone && profile.phone.length < 10) {
+      setMessage({ type: 'error', text: 'Nomor telepon minimal 10 digit' });
+      return;
+    }
+
     setSaving(true);
     setMessage({ type: '', text: '' });
 
@@ -106,8 +112,8 @@ function ProfilePage() {
             value={profile.phone}
             onChange={(e) => setProfile({...profile, phone: e.target.value})}
             className="w-full bg-background border border-border rounded-lg px-4 py-3 text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-            required 
-            placeholder="Contoh: 08123456789"
+            required minLength="10"
+            placeholder="Min 10 digit (0812...)"
           />
         </div>
 

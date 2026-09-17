@@ -15,9 +15,12 @@ export default function SettingsMgmt() {
     promo_badge: 'PROMO',
     promo_text: 'Diskon 20% Dine-In',
     promo_image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600',
-    promo_image_file: null
+    promo_image_file: null,
+    qris_image: '',
+    qris_image_file: null
   });
   const [promoImagePreview, setPromoImagePreview] = useState(null);
+  const [qrisImagePreview, setQrisImagePreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -36,7 +39,8 @@ export default function SettingsMgmt() {
         hero_subtitle: res.hero_subtitle || 'Pesan ramen autentik Jepang favoritmu dengan mudah. Cepat, hangat, dan memuaskan.',
         promo_badge: res.promo_badge || 'PROMO',
         promo_text: res.promo_text || 'Diskon 20% Dine-In',
-        promo_image: res.promo_image || 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600'
+        promo_image: res.promo_image || 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600',
+        qris_image: res.qris_image || ''
       });
     } catch (err) {
       showToast('Gagal memuat pengaturan', 'error');
@@ -52,6 +56,7 @@ export default function SettingsMgmt() {
       // Create a payload without the file object
       const payload = { ...formData };
       delete payload.promo_image_file;
+      delete payload.qris_image_file;
       await settingsApi.update(payload);
 
       // Upload image if selected
@@ -64,6 +69,16 @@ export default function SettingsMgmt() {
         setFormData(prev => ({ ...prev, promo_image: res.url, promo_image_file: null }));
         if (promoImagePreview) URL.revokeObjectURL(promoImagePreview);
         setPromoImagePreview(null);
+      }
+
+      if (formData.qris_image_file) {
+        const fileData = new FormData();
+        fileData.append('key', 'qris_image');
+        fileData.append('image', formData.qris_image_file);
+        const res = await settingsApi.uploadImage(fileData);
+        setFormData(prev => ({ ...prev, qris_image: res.url, qris_image_file: null }));
+        if (qrisImagePreview) URL.revokeObjectURL(qrisImagePreview);
+        setQrisImagePreview(null);
       }
 
       showToast('Pengaturan toko berhasil disimpan!', 'success');
@@ -226,6 +241,42 @@ export default function SettingsMgmt() {
                           <span className="text-[10px] font-bold bg-primary text-background px-2 py-0.5 rounded w-fit mb-1">{formData.promo_badge}</span>
                           <h3 className="font-bold text-sm text-white drop-shadow-md">{formData.promo_text}</h3>
                         </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-6 mt-8 border-t border-border">
+                <h2 className="text-xl font-bold mb-6 text-text flex items-center gap-2">
+                  <span className="text-primary">$</span> Pembayaran
+                </h2>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-text-muted mb-2 uppercase tracking-wide">Gambar QRIS (Opsional)</label>
+                    <div className="relative group rounded-xl overflow-hidden bg-surface-hover border border-border/50 hover:border-primary/50 transition mb-3">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          setFormData({ ...formData, qris_image_file: file });
+                          if (qrisImagePreview) URL.revokeObjectURL(qrisImagePreview);
+                          setQrisImagePreview(file ? URL.createObjectURL(file) : null);
+                        }}
+                        className="w-full text-sm text-text-muted file:mr-4 file:py-3.5 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                      />
+                    </div>
+                    
+                    {/* Image Preview */}
+                    {(qrisImagePreview || formData.qris_image) && (
+                      <div className="relative w-48 h-48 rounded-xl overflow-hidden border border-border mt-2 bg-white flex items-center justify-center p-2">
+                        <img 
+                          src={qrisImagePreview || getImageUrl(formData.qris_image)} 
+                          alt="QRIS Preview" 
+                          className="max-w-full max-h-full object-contain"
+                        />
                       </div>
                     )}
                   </div>

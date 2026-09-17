@@ -322,7 +322,7 @@ export default function MenuPage() {
               <p className="text-xs text-text-muted mt-1">{storeSettings.store_hours}</p>
             </SpotlightCard>
 
-            <SpotlightCard className="p-6 flex-1 bg-cover bg-center" style={{ backgroundImage: `url('${getImageUrl(storeSettings.promo_image)}')` }}>
+            <SpotlightCard className="p-6 flex-1 bg-cover bg-center min-h-[160px]" style={{ backgroundImage: `url('${getImageUrl(storeSettings.promo_image)}')` }}>
               <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
               <div className="relative z-10 h-full flex flex-col justify-end drop-shadow-md">
                 <span className="text-xs font-bold bg-primary text-background px-2 py-1 rounded w-fit mb-2">{storeSettings.promo_badge}</span>

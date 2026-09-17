@@ -39,6 +39,15 @@ export default function LandingPage() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    if (formData.phone && formData.phone.length < 10) {
+      showToast('Nomor telepon minimal 10 digit', 'warning');
+      return;
+    }
+    if (formData.password.length < 6) {
+      showToast('Password minimal 6 karakter', 'warning');
+      return;
+    }
+
     setLoading(true);
     try {
       const data = await authApi.register(formData.name, formData.email, formData.phone, formData.password);
@@ -119,9 +128,9 @@ export default function LandingPage() {
               <div>
                 <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Nomor Telepon</label>
                 <input 
-                  type="tel" required 
+                  type="tel" required minLength="10"
                   className="w-full bg-surface-hover border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                  placeholder="08123456789"
+                  placeholder="Min 10 digit (0812...)"
                   value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})}
                 />
               </div>
@@ -141,9 +150,9 @@ export default function LandingPage() {
           <div>
             <label className="block text-xs font-semibold text-text-muted mb-1.5 uppercase tracking-wide">Password</label>
             <input 
-              type="password" required 
+              type="password" required minLength="6"
               className="w-full bg-surface-hover border border-border rounded-lg px-4 py-3 text-text placeholder-text-muted/50 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-              placeholder="Min 6 karakter"
+              placeholder="Minimal 6 karakter"
               value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})}
             />
           </div>
