@@ -45,6 +45,57 @@ export default function Orders() {
     }
   };
 
+  const handlePrint = (order) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      showToast('Pop-up terblokir, tidak bisa cetak struk.', 'error');
+      return;
+    }
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Struk Pesanan ${order.order_number}</title>
+          <style>
+            body { font-family: monospace; padding: 20px; width: 300px; margin: 0 auto; color: #000; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h2 { margin: 0 0 5px 0; font-size: 20px; }
+            .header p { margin: 2px 0; font-size: 12px; }
+            .item { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 12px; }
+            .total { display: flex; justify-content: space-between; margin-top: 15px; font-weight: bold; border-top: 1px dashed #000; padding-top: 10px; font-size: 14px; }
+            .footer { text-align: center; margin-top: 30px; font-size: 12px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h2>Muma Ramen</h2>
+            <p>ID: ${order.order_number}</p>
+            <p>${formatDate(order.created_at)}</p>
+            <p>${getOrderTypeLabel(order.order_type)} ${order.table_number ? `- Meja ${order.table_number}` : ''}</p>
+          </div>
+          <div class="items">
+            ${(order.items || []).map(i => `
+              <div class="item">
+                <span>${i.quantity}x ${i.menu_item?.name || 'Item Terhapus'}</span>
+                <span>${formatPrice(i.price * i.quantity)}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="total">
+            <span>Total</span>
+            <span>${formatPrice(order.total_amount)}</span>
+          </div>
+          <div class="footer">
+            <p>Terima Kasih</p>
+          </div>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   const viewOrderDetails = (order) => {
     const content = `
       <div class="space-y-4">
@@ -93,7 +144,17 @@ export default function Orders() {
         </div>
       </div>
     `;
-    showModal({ title: `Detail Pesanan ${order.order_number}`, content, wide: true });
+    const footer = `
+      <button class="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-orange-600 transition flex items-center gap-2" id="print-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Cetak Struk
+      </button>
+    `;
+    const { overlay } = showModal({ title: `Detail Pesanan ${order.order_number}`, content, footer, wide: true });
+    if (overlay) {
+      const btn = overlay.querySelector('#print-btn');
+      if (btn) btn.addEventListener('click', () => handlePrint(order));
+    }
   };
 
   const getStatusColor = (status) => {
