@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getCart, getCartTotal, updateQuantity, updateItemNotes, removeFromCart, clearCart, onCartChange } from '../../cart';
 import { orders as ordersApi, settings as settingsApi } from '../../api';
-import { isLoggedIn } from '../../auth';
+import { isLoggedIn, getUser } from '../../auth';
 import { showToast, formatPrice, getMenuImage, getImageUrl, confirm } from '../../components/utils';
 import AvatarMenu from '../../components/AvatarMenu';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -25,9 +25,8 @@ export default function CartPage() {
     setCartItems(getCart());
     const unsub = onCartChange((newCart) => setCartItems([...newCart]));
     
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      const user = JSON.parse(userStr);
+    const user = getUser();
+    if (user) {
       if (user.phone) {
         setProfilePhone(user.phone);
         setCustomerPhone(user.phone);

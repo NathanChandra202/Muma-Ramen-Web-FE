@@ -8,7 +8,7 @@ import AvatarMenu from '../../components/AvatarMenu';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, Clock, Coffee, MapPin, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const SpotlightCard = ({ children, className = '', onClick }) => {
+const SpotlightCard = ({ children, className = '', onClick, style }) => {
   const divRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [opacity, setOpacity] = useState(0);
@@ -27,6 +27,7 @@ const SpotlightCard = ({ children, className = '', onClick }) => {
       onMouseLeave={() => setOpacity(0)}
       onClick={onClick}
       className={`relative overflow-hidden rounded-2xl bg-surface border border-border transition-transform hover:-translate-y-1 hover:shadow-2xl ${className}`}
+      style={style}
     >
       <div
         className="pointer-events-none absolute -inset-px opacity-0 transition duration-300"
