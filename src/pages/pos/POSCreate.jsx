@@ -21,12 +21,15 @@ export default function POSCreate() {
   const [customerName, setCustomerName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [storeSettings, setStoreSettings] = useState(null);
+
   useEffect(() => {
-    Promise.all([catApi.list(), menuApi.list()])
-      .then(([catsRes, menuRes]) => {
+    Promise.all([catApi.list(), menuApi.list(), import('../../api').then(m => m.settings.get())])
+      .then(([catsRes, menuRes, settingsRes]) => {
         setCategories(catsRes.categories || []);
         // Only show available items for ordering
         setMenuItems((menuRes.menu || []).filter(item => item.is_available && item.stock > 0));
+        setStoreSettings(settingsRes);
       })
       .catch(err => showToast(err.message, 'error'))
       .finally(() => setLoading(false));
@@ -273,9 +276,19 @@ export default function POSCreate() {
               )}
             </div>
 
-            <div className="flex justify-between items-center mb-4">
-              <span className="text-text-muted font-bold text-sm uppercase tracking-wider">Total Pembayaran</span>
-              <span className="text-2xl font-black text-primary">{formatPrice(calculateTotal())}</span>
+            <div className="border-t border-border pt-4 mb-4 space-y-2">
+              <div className="flex justify-between items-center text-text-muted text-sm">
+                <span className="font-semibold">Subtotal</span>
+                <span>{formatPrice(calculateTotal())}</span>
+              </div>
+              <div className="flex justify-between items-center text-text-muted text-sm">
+                <span className="font-semibold">Pajak ({storeSettings?.tax_rate || 10}%)</span>
+                <span>{formatPrice(calculateTotal() * ((storeSettings?.tax_rate ? parseFloat(storeSettings.tax_rate) : 10) / 100))}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2 mt-2 border-t border-border">
+                <span className="text-text-muted font-bold text-sm uppercase tracking-wider">Total Pembayaran</span>
+                <span className="text-2xl font-black text-primary">{formatPrice(calculateTotal() * (1 + (storeSettings?.tax_rate ? parseFloat(storeSettings.tax_rate) : 10) / 100))}</span>
+              </div>
             </div>
 
             <button

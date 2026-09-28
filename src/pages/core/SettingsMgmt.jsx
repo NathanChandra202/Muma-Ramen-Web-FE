@@ -17,7 +17,8 @@ export default function SettingsMgmt() {
     promo_image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600',
     promo_image_file: null,
     qris_image: '',
-    qris_image_file: null
+    qris_image_file: null,
+    tax_rate: '10'
   });
   const [promoImagePreview, setPromoImagePreview] = useState(null);
   const [qrisImagePreview, setQrisImagePreview] = useState(null);
@@ -40,7 +41,8 @@ export default function SettingsMgmt() {
         promo_badge: res.promo_badge || 'PROMO',
         promo_text: res.promo_text || 'Diskon 20% Dine-In',
         promo_image: res.promo_image || 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600',
-        qris_image: res.qris_image || ''
+        qris_image: res.qris_image || '',
+        tax_rate: res.tax_rate || '10'
       });
     } catch (err) {
       showToast('Gagal memuat pengaturan', 'error');
@@ -142,6 +144,29 @@ export default function SettingsMgmt() {
                   />
                 </div>
                 <p className="mt-2 text-xs text-text-muted">Informasi jam buka/tutup yang akan terlihat oleh pelanggan.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-text-muted mb-2 uppercase tracking-wide">
+                  Pajak (%)
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-text-muted/50 font-bold">%</span>
+                  </div>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    required
+                    value={formData.tax_rate}
+                    onChange={(e) => setFormData({ ...formData, tax_rate: e.target.value })}
+                    className="w-full bg-background border border-border rounded-xl pl-11 pr-4 py-3.5 text-text focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-sm"
+                    placeholder="Contoh: 10"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-text-muted">Persentase pajak yang akan ditambahkan pada total pesanan.</p>
               </div>
 
               <div className="pt-6 mt-8 border-t border-border">

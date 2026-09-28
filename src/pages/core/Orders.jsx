@@ -80,8 +80,16 @@ export default function Orders() {
               </div>
             `).join('')}
           </div>
+          <div class="item" style="margin-top: 10px;">
+            <span>Subtotal</span>
+            <span>${formatPrice(order.subtotal_amount || order.total_amount)}</span>
+          </div>
+          <div class="item">
+            <span>Pajak (${order.tax_rate || 10}%)</span>
+            <span>${formatPrice(order.tax_amount || 0)}</span>
+          </div>
           <div class="total">
-            <span>Total</span>
+            <span>Total Bayar</span>
             <span>${formatPrice(order.total_amount)}</span>
           </div>
           <div class="footer">
@@ -138,9 +146,19 @@ export default function Orders() {
             `).join('')}
           </div>
         </div>
-        <div class="flex justify-between items-center text-xl font-bold pt-4 border-t border-border">
-          <span>Total</span>
-          <span class="text-primary">${formatPrice(order.total_amount)}</span>
+        <div class="pt-4 border-t border-border space-y-2">
+          <div class="flex justify-between text-text-muted text-sm">
+            <span>Subtotal</span>
+            <span>${formatPrice(order.subtotal_amount || order.total_amount)}</span>
+          </div>
+          <div class="flex justify-between text-text-muted text-sm">
+            <span>Pajak (${order.tax_rate || 10}%)</span>
+            <span>${formatPrice(order.tax_amount || 0)}</span>
+          </div>
+          <div class="flex justify-between items-center text-xl font-bold pt-2 border-t border-border">
+            <span>Total Bayar</span>
+            <span class="text-primary">${formatPrice(order.total_amount)}</span>
+          </div>
         </div>
       </div>
     `;
@@ -280,6 +298,13 @@ export default function Orders() {
                         title="Lihat Detail"
                       >
                         <Eye size={18} />
+                      </button>
+                      <button
+                        onClick={() => handlePrint(order)}
+                        className="p-2 rounded-lg text-text-muted hover:text-primary hover:bg-primary/10 transition"
+                        title="Cetak Struk"
+                      >
+                        <Receipt size={18} />
                       </button>
 
                       {/* Status update buttons */}

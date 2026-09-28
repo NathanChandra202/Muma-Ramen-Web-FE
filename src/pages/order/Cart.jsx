@@ -89,6 +89,9 @@ export default function CartPage() {
   };
 
   const total = getCartTotal();
+  const taxRate = storeSettings?.tax_rate ? parseFloat(storeSettings.tax_rate) : 10;
+  const taxAmount = total * (taxRate / 100);
+  const finalTotal = total + taxAmount;
 
   return (
     <div className="min-h-screen bg-background text-text">
@@ -333,12 +336,12 @@ export default function CartPage() {
                     <span>{formatPrice(total)}</span>
                   </div>
                   <div className="flex justify-between text-text-muted">
-                    <span>Pajak (10%)</span>
-                    <span>{formatPrice(total * 0.1)}</span>
+                    <span>Pajak ({taxRate}%)</span>
+                    <span>{formatPrice(taxAmount)}</span>
                   </div>
                   <div className="flex justify-between font-bold text-xl mt-4 pt-4 border-t border-border text-text">
                     <span>Total Bayar</span>
-                    <span className="text-primary">{formatPrice(total * 1.1)}</span>
+                    <span className="text-primary">{formatPrice(finalTotal)}</span>
                   </div>
                 </div>
 

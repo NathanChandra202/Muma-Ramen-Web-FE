@@ -144,7 +144,7 @@ export default function TrackingPage() {
               <span className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-sm">🍜</span>
               Detail Item
             </h3>
-            <div className="space-y-4">
+            <div className="space-y-4 mb-6">
               {order.items?.map(item => (
                 <div key={item.id} className="flex justify-between items-center p-4 bg-surface-hover/50 rounded-xl">
                   <div>
@@ -157,6 +157,21 @@ export default function TrackingPage() {
                   <p className="font-bold">{formatPrice(item.price * item.quantity)}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="border-t border-border pt-6 mt-6 space-y-3">
+              <div className="flex justify-between text-text-muted">
+                <span>Subtotal</span>
+                <span>{formatPrice(order.subtotal_amount || order.total_amount)}</span>
+              </div>
+              <div className="flex justify-between text-text-muted">
+                <span>Pajak ({order.tax_rate || 10}%)</span>
+                <span>{formatPrice(order.tax_amount || 0)}</span>
+              </div>
+              <div className="flex justify-between font-bold text-xl pt-3 border-t border-border">
+                <span>Total Bayar</span>
+                <span className="text-primary">{formatPrice(order.total_amount)}</span>
+              </div>
             </div>
           </div>
         </div>

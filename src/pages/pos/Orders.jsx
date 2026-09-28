@@ -85,8 +85,16 @@ export default function POSOrders() {
               </div>
             `).join('')}
           </div>
+          <div class="item" style="margin-top: 10px;">
+            <span>Subtotal</span>
+            <span>${formatPrice(order.subtotal_amount || order.total_amount)}</span>
+          </div>
+          <div class="item">
+            <span>Pajak (${order.tax_rate || 10}%)</span>
+            <span>${formatPrice(order.tax_amount || 0)}</span>
+          </div>
           <div class="total">
-            <span>Total</span>
+            <span>Total Bayar</span>
             <span>${formatPrice(order.total_amount)}</span>
           </div>
           <div class="footer">
@@ -131,9 +139,19 @@ export default function POSOrders() {
             `).join('')}
           </div>
         </div>
-        <div class="flex justify-between items-center text-xl font-bold pt-4 border-t border-border">
-          <span>Total</span>
-          <span class="text-primary">${formatPrice(order.total_amount)}</span>
+        <div class="pt-4 border-t border-border space-y-2">
+          <div class="flex justify-between text-text-muted text-sm">
+            <span>Subtotal</span>
+            <span>${formatPrice(order.subtotal_amount || order.total_amount)}</span>
+          </div>
+          <div class="flex justify-between text-text-muted text-sm">
+            <span>Pajak (${order.tax_rate || 10}%)</span>
+            <span>${formatPrice(order.tax_amount || 0)}</span>
+          </div>
+          <div class="flex justify-between items-center text-xl font-bold pt-2 border-t border-border">
+            <span>Total Bayar</span>
+            <span class="text-primary">${formatPrice(order.total_amount)}</span>
+          </div>
         </div>
       </div>
     `;
@@ -205,7 +223,10 @@ export default function POSOrders() {
 
             <div className="mt-auto pt-4 border-t border-border flex justify-between items-center">
               <span className="font-bold text-lg">{formatPrice(order.total_amount)}</span>
-              <button onClick={() => viewOrderDetails(order)} className="text-sm font-bold text-primary hover:underline">Detail</button>
+              <div className="flex gap-3">
+                <button onClick={() => handlePrint(order)} className="text-sm font-bold text-text-muted hover:text-primary transition flex items-center gap-1"><Receipt size={16} /> Cetak</button>
+                <button onClick={() => viewOrderDetails(order)} className="text-sm font-bold text-primary hover:underline">Detail</button>
+              </div>
             </div>
 
             {/* Actions for Active Orders */}
